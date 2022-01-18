@@ -15,7 +15,7 @@ if(T){
   pdata=pData(sCLLex)
   group_list=as.character(pdata[,2])
   dim(exprSet)
-  exprSet[1:5,1:5]
+
   
   
   #BiocManager::install('hgu95av2.db')
@@ -102,6 +102,8 @@ g_var <- tail(sort(apply(exprSet,1,var)),50)
 g_mad <- tail(sort(apply(exprSet,1,mad)),50)
 g_mad
 names(g_mad)
+
+
 ## heatmap 
 library(pheatmap)
 choose_gene=names(tail(sort(apply(exprSet,1,mad)),50))
@@ -136,6 +138,7 @@ colnames(exprSet)=paste(group_list,1:22,sep='')
 nodePar <- list(lab.cex = 0.6, pch = c(NA, 19), 
                 cex = 0.7, col = "blue")
 hc=hclust(dist(t(exprSet)))
+plot(hc)
 par(mar=c(5,5,5,10)) 
 plot(as.dendrogram(hc), nodePar = nodePar,  horiz = TRUE)
 

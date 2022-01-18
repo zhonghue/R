@@ -14,7 +14,7 @@ exprSet <- exprs(gset[[1]])
 
 #在GEO页面查询GPL平台，通过id转换的CSV文件找到对应R包
 #用Biocmanager下载、加载这个R包，如下：
-BiocManager::install('hugene10sttranscriptcluster.db')
+#BiocManager::install('hugene10sttranscriptcluster.db')
 library(hugene10sttranscriptcluster.db)
 
 #这个R包不仅可以将探针号转为symbol名，还能转为其他
@@ -41,10 +41,14 @@ plot(table(sort(table(ids$symbol))))
 #ids$probe_id是探针对应表中有记载的探针号:19869个
 #实际测出的探针号 & 有记载探针号相交，即可注释的探针号：19869个
 table(rownames(exprSet) %in% ids$probe_id)
+#（1）第一次过滤：rownames(exprSet) 33297 && 19869 = 19869
 exprSet <- exprSet[rownames(exprSet) %in% ids$probe_id,]
+dim(exprSet)
 View(exprSet)
 
+
 #ids重新取子集，选定条件为：实际测出和有记载的探针号相重合
+#（2）通过match函数，将exprSet和ids$probe_id的探针顺序一一匹配
 ids <- ids[match(rownames(exprSet),ids$probe_id),]
 dim(ids)
 
@@ -60,15 +64,17 @@ dim(ids)
     #which.Max(x)取一列数的最大值的下标
     #本句意义：对每一个symbol有多个探针，取哪个探针比较好呢？
     #答：哪个探针在所有样本里的表达量最大，我们就取第几个。
-tmp <- by(exprSet,
-          ids$symbol,
+    
+tmp <-  by(exprSet, ids$symbol,
           function(x) rownames(x)[which.max(rowMeans(x))])
 
 probes <- as.character(tmp)
 class(probes)
 class(rownames(exprSet))
-
+dim(exprSet)
 #exprSet取子集，标准就是刚才的标准（表达量最大的探针）
+#（3）第二次过滤，分割为子集取最大一个探针，19869变为18858
 exprSet <- exprSet[rownames(exprSet) %in% probes, ]
+rownames(exprSet)=ids[match(rownames(exprSet),ids$probe_id),2]
 dim(exprSet)
 View(exprSet)
